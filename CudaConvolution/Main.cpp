@@ -5,6 +5,8 @@
 #include "cufft.h"
 
 #include "BufferQueue.h"
+#include "FrameGrabStreamer.h"
+#include "SaveStreamer.h"
 #include <vector>
 #include <future>
 #include <deque>
@@ -12,6 +14,7 @@
 void acquire();
 void square(float* arr, int size);
 
+/*
 void worker_f(BufferQueue<uint16_t*>* in, BufferQueue<uint16_t*>* out)
 {
 	while (1) {
@@ -33,38 +36,43 @@ void worker_f(BufferQueue<uint16_t*>* in, BufferQueue<uint16_t*>* out)
 		}
 	}
 }
+*/
 
 int main()
 {
 	BufferQueue<uint16_t*> to_worker;
 	BufferQueue<uint16_t*> from_worker;
-	std::mutex m;
-	std::condition_variable cv;
 
-	std::vector<std::unique_ptr<uint16_t[]>> buffers;
-	for (int i = 0; i < 10; ++i) {
-		buffers.emplace_back(new uint16_t[2048]);
+	FrameGrabStreamer fgs;
+	fgs.SetServerId(1);
+	fgs.SetConfigFile("C:/Users/SD-OCT/Desktop/TargetCam.ccf");
+	fgs.Setup();
+
+	std::vector<std::unique_ptr<FrameGrabStreamer::Producer_element_t[]>> buffers;
+	for (int i = 0; i < 256; ++i) {
+		buffers.emplace_back(new FrameGrabStreamer::Producer_element_t[fgs.GetFrameHeight() * fgs.GetFrameWidth()]);
 		from_worker.push_back(buffers[i].get());
 	}
-	std::thread t(worker_f, &to_worker, &from_worker);
-	
-	for (int i = 0; i < 1000; ++i) {
-		if (from_worker.size() > 0) {
-			uint16_t* arr = from_worker.front();
-			from_worker.pop_front();
-			std::cout << arr[0] << '\n';
-			to_worker.push_back(arr);
-		}
-	}
-	to_worker.push_back(nullptr);
-	for (int i = 0; i < 1000; ++i) {
-		if (from_worker.size() > 0) {
-			uint16_t* arr = from_worker.front();
-			from_worker.pop_front();
-			std::cout << arr[0] << '\n';
-		}
-	}
 
+	fgs.SetProducerInputQueue(&from_worker);
+	fgs.SetProducerOutputQueue(&to_worker);
+	
+	SaveStreamer ss;
+	ss.SetFilename("D:/out_stream.bin");
+	ss.SetBufferSize(sizeof(FrameGrabStreamer::Producer_element_t) * fgs.GetFrameHeight() * fgs.GetFrameWidth());
+	ss.SetConsumerInputQueue(&to_worker);
+	ss.SetConsumerOutputQueue(&from_worker);
+	ss.Setup();
+
+	fgs.StartStreaming();
+	ss.StartStreaming();
+	/*while (1) {
+		if (from_worker.size() > 0) {
+			uint16_t* buf = from_worker.front();
+			from_worker.pop_front();
+			to_worker.push_back(buf);
+		}
+	}*/
 	/*
 	acquire();
 	std::unique_ptr<float[]> arr(new float[1024]);
@@ -100,4 +108,6 @@ int main()
 	}
 	*/
 	MessageBox(NULL, "look", "", MB_OK);
+	fgs.StopStreaming();
+	ss.StopStreaming();
 }

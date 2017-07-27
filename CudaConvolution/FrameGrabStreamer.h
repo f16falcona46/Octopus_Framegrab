@@ -19,6 +19,8 @@ public:
 
 	void SetServerId(int server_id) { m_server_id = server_id; }
 	int GetServerId() { return m_server_id; }
+	void SetConfigFile(const std::string& config_file) { m_config_file = config_file; }
+	std::string GetConfigFile() { return m_config_file; }
 	int GetFrameWidth();
 	int GetFrameHeight();
 
@@ -39,6 +41,6 @@ private:
 	bool m_set_up;
 	size_t m_buf_size;
 
-	friend static void FrameCallback(SapXferCallbackInfo* info);
+	friend void FrameCallback(SapXferCallbackInfo* info);
 };
 

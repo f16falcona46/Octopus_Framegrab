@@ -35,7 +35,7 @@ public:
 		std::lock_guard<std::mutex> lock(m_beingmodified);
 		return m_queue.pop_front();
 	}
-	int size()
+	size_t size()
 	{
 		std::lock_guard<std::mutex> lock(m_beingmodified);
 		return m_queue.size();

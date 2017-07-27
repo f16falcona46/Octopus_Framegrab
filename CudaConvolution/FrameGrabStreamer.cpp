@@ -1,8 +1,9 @@
 #include "FrameGrabStreamer.h"
 #include <SapClassBasic.h>
 #include <stdexcept>
+#include <iostream>
 
-static void FrameCallback(SapXferCallbackInfo* info)
+void FrameCallback(SapXferCallbackInfo* info)
 {
 	FrameGrabStreamer* streamer = (FrameGrabStreamer*)info->GetContext();
 	FrameGrabStreamer::Producer_element_t* buf = streamer->m_prod_in->front();
@@ -23,6 +24,7 @@ FrameGrabStreamer::FrameGrabStreamer() : m_set_up(false)
 
 FrameGrabStreamer::~FrameGrabStreamer()
 {
+	StopStreaming();
 	m_acq_to_buf.Abort();
 	m_acq.UnregisterCallback();
 	m_acq_to_buf.Destroy();
@@ -60,7 +62,7 @@ void FrameGrabStreamer::Setup()
 	if (!m_acq_to_buf.Create()) {
 		throw std::runtime_error("Could not create SapTransfer.");
 	}
-	m_buf_size = sizeof(Element_t) * GetFrameWidth() * GetFrameHeight();
+	m_buf_size = sizeof(Producer_element_t) * m_buffer.GetWidth() * m_buffer.GetHeight();
 	m_set_up = true;
 }
 

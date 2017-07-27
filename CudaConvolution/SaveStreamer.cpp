@@ -1,7 +1,8 @@
 #include "SaveStreamer.h"
 #include <stdexcept>
+#include <iostream>
 
-static void StreamFunc(SaveStreamer* streamer)
+void StreamFunc(SaveStreamer* streamer)
 {
 	while (streamer->m_streaming) {
 		if (streamer->m_cons_in->size() <= 0) continue;
@@ -12,15 +13,15 @@ static void StreamFunc(SaveStreamer* streamer)
 	}
 }
 
-SaveStreamer::SaveStreamer(Consumer_queue_t* in, Consumer_queue_t* out)
+SaveStreamer::SaveStreamer()
 {
-	SetConsumerInputQueue(in);
-	SetConsumerOutputQueue(out);
 }
 
 
 SaveStreamer::~SaveStreamer()
 {
+	StopStreaming();
+	m_outfile.close();
 }
 
 const std::string & SaveStreamer::GetFilename()
@@ -35,15 +36,20 @@ void SaveStreamer::SetFilename(const std::string& filename)
 
 void SaveStreamer::Setup()
 {
+	m_outfile.close();
 	m_outfile.open(m_filename, std::ios::out | std::ios::binary);
 	m_setup = true;
 }
 
 void SaveStreamer::StartStreaming()
 {
-
+	if (!m_setup) throw std::runtime_error("SaveStreamer wasn't set up before calling StartStreaming().");
+	m_streaming = true;
+	m_streamthread = std::thread(StreamFunc, this);
 }
 
 void SaveStreamer::StopStreaming()
 {
+	m_streaming = false;
+	m_streamthread.join();
 }
