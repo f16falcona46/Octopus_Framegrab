@@ -3,7 +3,7 @@
 #include <stdexcept>
 #include <iostream>
 
-void FrameCallback(SapXferCallbackInfo* info)
+void FrameGrabStreamer::FrameCallback(SapXferCallbackInfo* info)
 {
 	FrameGrabStreamer* streamer = (FrameGrabStreamer*)info->GetContext();
 	FrameGrabStreamer::Producer_element_t* buf = streamer->m_prod_in->front();

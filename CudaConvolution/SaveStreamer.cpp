@@ -2,7 +2,7 @@
 #include <stdexcept>
 #include <iostream>
 
-void StreamFunc(SaveStreamer* streamer)
+void SaveStreamer::StreamFunc(SaveStreamer* streamer)
 {
 	while (streamer->m_streaming) {
 		if (streamer->m_cons_in->size() <= 0) continue;

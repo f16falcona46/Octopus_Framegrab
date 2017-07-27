@@ -41,6 +41,6 @@ private:
 	bool m_set_up;
 	size_t m_buf_size;
 
-	friend void FrameCallback(SapXferCallbackInfo* info);
+	static void FrameCallback(SapXferCallbackInfo* info);
 };
 
