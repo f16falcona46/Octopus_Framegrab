@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <cstdint>
+#include <mutex>
 #include "cuda_runtime.h"
 #include "cufft.h"
 
@@ -23,11 +24,13 @@ struct acq_context {
 	cufftReal* input_hbuf;
 	cufftReal* input_dbuf;
 	cufftHandle plan;
+	std::mutex donttouch;
 };
 
 void transfer_callback(SapXferCallbackInfo* info)
 {
 	acq_context* ctx = (acq_context*)info->GetContext();
+	std::lock_guard<std::mutex> lock(ctx->donttouch);
 	void* pdata;
 	ctx->buf->GetAddress(&pdata);
 	for (int i = 0; i < ctx->num_pix; ++i) {
@@ -59,7 +62,7 @@ void acquire()
 	std::cout << "Server " << server << ": " << name << std::endl;
 
 	SapAcquisition acq(loc, config_file);
-	SapBufferWithTrash buffer(2, &acq);
+	SapBufferWithTrash buffer(4, &acq);
 	acq_context ctx;
 	SapTransfer acq_to_buf(transfer_callback, &ctx);
 	acq_to_buf.AddPair(SapXferPair(&acq, &buffer));
@@ -103,6 +106,7 @@ void acquire()
 	std::cout << "a\n";
 
 FreeHandles:
+	std::lock_guard<std::mutex> lock(ctx.donttouch);
 	acq_to_buf.Abort();
 	std::cout << "a\n";
 	acq.UnregisterCallback();

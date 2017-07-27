@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Acquisition.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="CUDAStreamer.cpp">
+      <Filter>Class Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameGrabStreamer.cpp">
+      <Filter>Class Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SaveStreamer.cpp">
+      <Filter>Class Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="FrameGrabStreamer.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CUDAStreamer.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="BufferQueue.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SaveStreamer.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="StreamerInfo.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Class Header Files">
+      <UniqueIdentifier>{067e7810-df8c-4341-9703-49ea71c132bf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Class Source Files">
+      <UniqueIdentifier>{364b6776-07fe-4b47-b78c-7d053df87246}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

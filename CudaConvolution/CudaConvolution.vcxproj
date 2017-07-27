@@ -173,7 +173,19 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Acquisition.cpp" />
+    <ClCompile Include="CUDAStreamer.cpp" />
+    <ClCompile Include="FrameGrabStreamer.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SaveStreamer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BufferQueue.h" />
+    <ClInclude Include="CUDAStreamer.h" />
+    <ClInclude Include="FrameGrabStreamer.h" />
+    <ClInclude Include="SaveStreamer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="StreamerInfo.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

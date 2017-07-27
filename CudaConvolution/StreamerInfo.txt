@@ -1,0 +1,9 @@
+"Input" means to provide fresh buffers, that is to say, both producers and consumers pop off their corresponding inputs.
+"Output"s are likewise; both producers and consumers push buffers on their corresponding outputs.
+Therefore, the "Input" buffer of a producer must be the "Output" buffer of a consumer, and vice versa.
+
+StopStreaming() should stop the streaming, but it may transfer one more buffer before it ends.
+
+Buffers and buffer queues are not owned by the streamers. The user of these classes must construct, keep track of, and destroy them.
+
+Note: any changes made to streamer instances may not be applied to them until the streaming is stopped, and the Setup() function run again.
