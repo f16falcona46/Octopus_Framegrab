@@ -17,7 +17,7 @@ public:
 	Consumer_queue_t* GetConsumerOutputQueue() { return m_cons_out; }
 	void SetConsumerOutputQueue(Consumer_queue_t* out) { m_cons_out = out; }
 	void SetBufferCount(size_t bufsize) { m_bufsize = bufsize * sizeof(Consumer_element_t); }
-	const std::string& GetFilename();
+	std::string GetFilename();
 	void SetFilename(const std::string& filename);
 	void Setup();
 	void StartStreaming();

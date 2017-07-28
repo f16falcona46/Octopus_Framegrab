@@ -5,11 +5,12 @@
 void SaveStreamer::StreamFunc(SaveStreamer* streamer)
 {
 	while (streamer->m_streaming) {
-		if (streamer->m_cons_in->size() <= 0) continue;
-		SaveStreamer::Consumer_element_t* buf = streamer->m_cons_in->front();
-		streamer->m_cons_in->pop_front();
-		streamer->m_outfile.write((char*)buf, streamer->m_bufsize);
-		streamer->m_cons_out->push_back(buf);
+		if (streamer->m_cons_in->size() > 0) {
+			SaveStreamer::Consumer_element_t* buf = streamer->m_cons_in->front();
+			streamer->m_cons_in->pop_front();
+			streamer->m_outfile.write((char*)buf, streamer->m_bufsize);
+			streamer->m_cons_out->push_back(buf);
+		}
 	}
 }
 
@@ -20,11 +21,16 @@ SaveStreamer::SaveStreamer()
 
 SaveStreamer::~SaveStreamer()
 {
-	StopStreaming();
-	m_outfile.close();
+	try {
+		StopStreaming();
+		m_outfile.close();
+	}
+	catch (...) {
+		std::cout << "Something bad happened in ~SaveStreamer().\n";
+	}
 }
 
-const std::string & SaveStreamer::GetFilename()
+std::string SaveStreamer::GetFilename()
 {
 	return m_filename;
 }

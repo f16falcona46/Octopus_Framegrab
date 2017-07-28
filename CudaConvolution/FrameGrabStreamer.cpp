@@ -6,8 +6,8 @@
 void FrameGrabStreamer::FrameCallback(SapXferCallbackInfo* info)
 {
 	FrameGrabStreamer* streamer = (FrameGrabStreamer*)info->GetContext();
-	FrameGrabStreamer::Producer_element_t* buf = streamer->m_prod_in->front();
 	if (streamer->m_prod_in->size() <= 0) return;
+	FrameGrabStreamer::Producer_element_t* buf = streamer->m_prod_in->front();
 	streamer->m_prod_in->pop_front();
 	void* pdata;
 	streamer->m_buffer.GetAddress(&pdata);
@@ -24,12 +24,16 @@ FrameGrabStreamer::FrameGrabStreamer() : m_set_up(false)
 
 FrameGrabStreamer::~FrameGrabStreamer()
 {
-	StopStreaming();
-	m_acq_to_buf.Abort();
-	m_acq.UnregisterCallback();
-	m_acq_to_buf.Destroy();
-	m_buffer.Destroy();
-	m_acq.Destroy();
+	try {
+		StopStreaming();
+		m_acq.UnregisterCallback();
+		m_acq_to_buf.Destroy();
+		m_buffer.Destroy();
+		m_acq.Destroy();
+	}
+	catch (...) {
+		std::cout << "Something bad happened in ~FrameGrabStreamer().\n";
+	}
 }
 
 int FrameGrabStreamer::GetFrameWidth()
@@ -50,7 +54,7 @@ void FrameGrabStreamer::Setup()
 	SapManager::GetServerName(m_server_id, name, sizeof(name));
 	m_loc = SapLocation(name, m_server_id);
 	m_acq = SapAcquisition(m_loc, m_config_file.c_str());
-	m_buffer = SapBufferWithTrash(2, &m_acq);
+	m_buffer = SapBufferWithTrash(4, &m_acq);
 	m_acq_to_buf = SapTransfer(FrameCallback, this);
 	m_acq_to_buf.AddPair(SapXferPair(&m_acq, &m_buffer));
 	if (!m_acq.Create()) {
@@ -68,7 +72,7 @@ void FrameGrabStreamer::Setup()
 
 void FrameGrabStreamer::StartStreaming()
 {
-	if (!m_set_up) throw std::runtime_error("FrameGrabStreamer wasn't set up before callign StartStreaming.");
+	if (!m_set_up) throw std::runtime_error("FrameGrabStreamer wasn't set up before calling StartStreaming.");
 	if (!m_acq_to_buf.Grab()) {
 		throw std::runtime_error("Could not start image acquisition.");
 	}
@@ -80,6 +84,8 @@ void FrameGrabStreamer::StopStreaming()
 		throw std::runtime_error("Could not stop safely.");
 	}
 	if (!m_acq_to_buf.Wait(5000)) {
-		throw std::runtime_error("Waiting for callback to end timed out!");
+		if (!m_acq_to_buf.Abort()) {
+			throw std::runtime_error("Waiting for callback to end timed out!");
+		}
 	}
 }
