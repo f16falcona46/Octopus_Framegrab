@@ -169,7 +169,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     </CudaLink>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CudaCompile Include="ConvertAndCopy.cu" />
+    <CudaCompile Include="CUDAStreamer.cu">
+      <FastMath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</FastMath>
+    </CudaCompile>
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +179,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="CUDAStreamer.cpp" />
     <ClCompile Include="DisplayStreamer.cpp" />
     <ClCompile Include="FrameGrabStreamer.cpp" />
+    <ClCompile Include="LoadStreamer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SaveStreamer.cpp" />
   </ItemGroup>
@@ -185,6 +188,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="CUDAStreamer.h" />
     <ClInclude Include="DisplayStreamer.h" />
     <ClInclude Include="FrameGrabStreamer.h" />
+    <ClInclude Include="LoadStreamer.h" />
     <ClInclude Include="SaveStreamer.h" />
   </ItemGroup>
   <ItemGroup>

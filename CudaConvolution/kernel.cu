@@ -13,7 +13,7 @@ void square(float* arr, int size)
 	cudaMalloc(&dev_arr, size * sizeof(float));
 	cudaMemcpy(dev_arr, arr, size * sizeof(float), cudaMemcpyHostToDevice);
 	add1 <<<1, size >>> (dev_arr);
-	cudaThreadSynchronize();
 	cudaMemcpy(arr, dev_arr, size * sizeof(float), cudaMemcpyDeviceToHost);
+	cudaDeviceSynchronize();
 	cudaFree(dev_arr);
 }

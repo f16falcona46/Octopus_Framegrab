@@ -39,7 +39,7 @@ void transfer_callback(SapXferCallbackInfo* info)
 	ctx->buf->ReleaseAddress(pdata);
 	cudaMemcpy(ctx->input_dbuf, ctx->input_hbuf, ctx->num_bytes * 2, cudaMemcpyHostToDevice);
 	cufftExecR2C(ctx->plan, ctx->input_dbuf, ctx->output_dbuf);
-	cudaThreadSynchronize();
+	cudaDeviceSynchronize();
 	cudaMemcpy(ctx->output_hbuf, ctx->output_dbuf, ctx->num_bytes * 4, cudaMemcpyDeviceToHost);
 	ctx->fout->write((char*)ctx->output_hbuf, ctx->num_bytes * 4);
 }

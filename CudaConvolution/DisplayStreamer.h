@@ -8,7 +8,7 @@
 class DisplayStreamer
 {
 public:
-	typedef cufftComplex Consumer_element_t;
+	typedef float Consumer_element_t;
 	typedef BufferQueue<Consumer_element_t*> Consumer_queue_t;
 	DisplayStreamer();
 	~DisplayStreamer();

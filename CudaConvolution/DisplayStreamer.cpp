@@ -74,7 +74,7 @@ LRESULT DisplayStreamer::DisplayStreamerWinProc(HWND hwnd, UINT msg, WPARAM wPar
 		Gdiplus::Pen pen(Gdiplus::Color(0, 0, 0));
 		g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		for (int i = 1; i < streamer->m_line.size(); ++i) {
-			g.DrawLine(&pen, i - 1, (int)streamer->m_line[i - 1].x, i, (int)streamer->m_line[i].x);
+			g.DrawLine(&pen, i - 1, (int)streamer->m_line[i - 1], i, (int)streamer->m_line[i]);
 		}
 		break;
 	}

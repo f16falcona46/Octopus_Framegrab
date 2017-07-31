@@ -8,7 +8,7 @@ class CUDAStreamer
 {
 public:
 	typedef uint16_t Consumer_element_t;
-	typedef cufftComplex Producer_element_t;
+	typedef float Producer_element_t;
 	typedef BufferQueue<Consumer_element_t*> Consumer_queue_t;
 	typedef BufferQueue<Producer_element_t*> Producer_queue_t;
 	CUDAStreamer();
@@ -36,14 +36,18 @@ private:
 	bool m_streaming;
 	bool m_setup;
 	cufftHandle m_plan;
-	cufftReal* m_host_in_buf;
-	cufftReal* m_device_in_buf;
+	uint16_t* m_device_in_buf;
+	cufftReal* m_device_conv_in_buf;
 	cufftComplex* m_device_out_buf;
+	Producer_element_t* m_device_norm_out_buf;
+	int* m_device_lerp_index;
+	float* m_device_lerp_fraction;
 	size_t m_bufcount;
+	size_t m_linewidth;
 	size_t m_in_bufsize;
 	size_t m_out_bufsize;
-	size_t m_linewidth;
 
 	static void CUDAStreamer::StreamFunc(CUDAStreamer* streamer);
+	static void DoFFT(CUDAStreamer* streamer);
 };
 
