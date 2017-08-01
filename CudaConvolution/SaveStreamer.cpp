@@ -57,5 +57,7 @@ void SaveStreamer::StartStreaming()
 void SaveStreamer::StopStreaming()
 {
 	m_streaming = false;
-	m_streamthread.join();
+	if (m_streamthread.joinable()) {
+		m_streamthread.join();
+	}
 }

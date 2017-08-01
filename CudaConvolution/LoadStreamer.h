@@ -1,7 +1,9 @@
 #pragma once
 #include <cstdint>
 #include <string>
+#include <fstream>
 #include <thread>
+#include <memory>
 #include "BufferQueue.h"
 
 class LoadStreamer
@@ -16,8 +18,8 @@ public:
 	Producer_queue_t* GetProducerOutputQueue() { return m_prod_out; }
 	void SetProducerOutputQueue(Producer_queue_t* out) { m_prod_out = out; }
 
-	void SetInputFile(const std::string& input_file) { m_input_file = input_file; }
-	std::string GetInputFile() { return m_input_file; }
+	void SetInputFile(const std::string& input_file) { m_input_filename = input_file; }
+	std::string GetInputFile() { return m_input_filename; }
 	void SetFrameWidth(int width) { m_framewidth = width; }
 	void SetFrameHeight(int height) { m_frameheight = height; }
 	int GetFrameWidth() { return m_framewidth; }
@@ -30,11 +32,14 @@ public:
 private:
 	Producer_queue_t* m_prod_in;
 	Producer_queue_t* m_prod_out;
+	std::unique_ptr<Producer_element_t[]> m_rdbuf;
 	std::thread m_streamthread;
-	std::string m_input_file;
+	std::string m_input_filename;
+	std::ifstream m_input_file;
 	bool m_streaming;
-	bool m_set_up;
-	size_t m_buf_size;
+	bool m_setup;
+	size_t m_bufsize;
+	size_t m_bufcount;
 	int m_framewidth;
 	int m_frameheight;
 

@@ -21,7 +21,9 @@
     <ClCompile Include="DisplayStreamer.cpp">
       <Filter>Class Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LoadStreamer.cpp" />
+    <ClCompile Include="LoadStreamer.cpp">
+      <Filter>Class Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameGrabStreamer.h">
@@ -39,7 +41,9 @@
     <ClInclude Include="DisplayStreamer.h">
       <Filter>Class Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="LoadStreamer.h" />
+    <ClInclude Include="LoadStreamer.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="StreamerInfo.txt" />

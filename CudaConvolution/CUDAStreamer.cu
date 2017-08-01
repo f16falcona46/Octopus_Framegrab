@@ -9,14 +9,6 @@ __global__ void Interpolate(const uint16_t* in, float* out, const int* indexes, 
 	out[idx] = in[indexes[idx]] * (1.0f - fractions[idx]) + in[indexes[idx] + 1] * fractions[idx];
 }
 
-/*
-__global__ void ToRealAndCopy(const CUDAStreamer::Consumer_element_t* in, cufftReal* out)
-{
-	int idx = blockIdx.x * blockDim.x + threadIdx.x;
-	out[idx] = in[idx];
-}
-*/
-
 __global__ void NormAndCopy(const cufftComplex* in, CUDAStreamer::Producer_element_t* out)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;

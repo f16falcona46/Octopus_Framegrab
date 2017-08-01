@@ -100,6 +100,7 @@ void CUDAStreamer::Setup()
 	cudaMemcpy(m_device_lerp_index, indexes_todevice.get(), m_bufcount * sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(m_device_lerp_fraction, fractions_todevice.get(), m_bufcount * sizeof(float), cudaMemcpyHostToDevice);
 
+	//allocate buffers
 	m_in_bufsize = m_bufcount * sizeof(CUDAStreamer::Consumer_element_t);
 	m_out_bufsize = m_bufcount * sizeof(CUDAStreamer::Producer_element_t);
 	if (cudaMalloc(&m_device_in_buf, m_in_bufsize) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA input buffer.");
@@ -120,5 +121,7 @@ void CUDAStreamer::StartStreaming()
 void CUDAStreamer::StopStreaming()
 {
 	m_streaming = false;
-	m_streamthread.join();
+	if (m_streamthread.joinable()) {
+		m_streamthread.join();
+	}
 }
