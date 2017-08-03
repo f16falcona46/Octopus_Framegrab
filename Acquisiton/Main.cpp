@@ -9,6 +9,7 @@
 #include "FrameGrabStreamer.h"
 #include "CUDAStreamer.h"
 #include "SaveStreamer.h"
+#include "ShortSaveStreamer.h"
 #include "DisplayStreamer.h"
 #include <vector>
 #include <future>
@@ -25,8 +26,8 @@ int main()
 		*/
 		LoadStreamer fgs;
 		fgs.SetFrameWidth(2048);
-		fgs.SetFrameHeight(1000);
-		fgs.SetInputFile("C:/Users/SD-OCT/Desktop/OCT/Data/Tumor_NewCCD_2017-03-08_00000.oct");
+		fgs.SetFrameHeight(1024);
+		fgs.SetInputFile("C:/Users/SD-OCT/Desktop/OCT/Data/Tumor_NewCCD_2017-03-08_00000.oct.raw");
 		fgs.Setup();
 		BufferQueue<FrameGrabStreamer::Producer_element_t*> fg_to_cuda;
 		BufferQueue<FrameGrabStreamer::Producer_element_t*> cuda_to_fg;

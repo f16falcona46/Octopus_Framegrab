@@ -24,6 +24,9 @@
     <ClCompile Include="LoadStreamer.cpp">
       <Filter>Class Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ShortSaveStreamer.cpp">
+      <Filter>Class Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FrameGrabStreamer.h">
@@ -42,6 +45,9 @@
       <Filter>Class Header Files</Filter>
     </ClInclude>
     <ClInclude Include="LoadStreamer.h">
+      <Filter>Class Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShortSaveStreamer.h">
       <Filter>Class Header Files</Filter>
     </ClInclude>
   </ItemGroup>

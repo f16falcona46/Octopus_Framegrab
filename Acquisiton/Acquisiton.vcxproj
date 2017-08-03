@@ -20,7 +20,8 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ADD3045C-7A4A-46A6-9213-9C81C3EB1AFF}</ProjectGuid>
-    <RootNamespace>CudaConvolution</RootNamespace>
+    <RootNamespace>Acquisition</RootNamespace>
+    <ProjectName>Acquisition</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -171,6 +172,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
   <ItemGroup>
     <CudaCompile Include="CUDAStreamer.cu">
       <FastMath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</FastMath>
+      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_50,sm_50</CodeGeneration>
+      <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_50,sm_50</CodeGeneration>
     </CudaCompile>
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
@@ -182,6 +185,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClCompile Include="LoadStreamer.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="SaveStreamer.cpp" />
+    <ClCompile Include="ShortSaveStreamer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BufferQueue.h" />
@@ -190,6 +194,7 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="FrameGrabStreamer.h" />
     <ClInclude Include="LoadStreamer.h" />
     <ClInclude Include="SaveStreamer.h" />
+    <ClInclude Include="ShortSaveStreamer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="StreamerInfo.txt" />

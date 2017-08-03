@@ -18,7 +18,7 @@ void LoadStreamer::Setup()
 	m_bufcount = m_framewidth * m_frameheight;
 	m_bufsize = m_bufcount * sizeof(Producer_element_t);
 	m_rdbuf.reset(new Producer_element_t[m_bufcount]);
-	m_input_file.open(m_input_filename, std::ios::in, std::ios::binary);
+	m_input_file.open(m_input_filename, std::ios::in | std::ios::binary);
 	m_setup = true;
 }
 
