@@ -26,6 +26,7 @@ public:
 	void StopStreaming();
 	void SetBufferCount(size_t bufcount) { m_bufcount = bufcount; }
 	void SetLineWidth(size_t width) { m_linewidth = width; }
+	void CopyDCBuffer(Consumer_element_t* buf);
 
 private:
 	Consumer_queue_t* m_cons_in;
@@ -37,11 +38,12 @@ private:
 	bool m_setup;
 	cufftHandle m_plan;
 	uint16_t* m_device_in_buf;
-	cufftReal* m_device_conv_in_buf;
+	cufftComplex* m_device_conv_in_buf;
 	cufftComplex* m_device_out_buf;
 	Producer_element_t* m_device_norm_out_buf;
 	int* m_device_lerp_index;
 	float* m_device_lerp_fraction;
+	Consumer_element_t* m_device_dc_buf;
 	size_t m_bufcount;
 	size_t m_linewidth;
 	size_t m_in_bufsize;

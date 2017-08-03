@@ -36,13 +36,24 @@ void LoadStreamer::StopStreaming()
 	}
 }
 
+template <typename T>
+void transpose(T* src, T* dst, const int N, const int M) {
+	for (int n = 0; n<N*M; n++) {
+		int i = n / N;
+		int j = n%N;
+		dst[n] = src[M*j + i];
+	}
+}
+
 void LoadStreamer::StreamFunc(LoadStreamer* streamer)
 {
 	while (streamer->m_streaming && streamer->m_input_file.read((char*)streamer->m_rdbuf.get(), streamer->m_bufsize)) {
 		if (streamer->m_prod_in->size() > 0) {
 			Producer_element_t* buf = streamer->m_prod_in->front();
 			streamer->m_prod_in->pop_front();
+			//transpose(streamer->m_rdbuf.get(), buf, streamer->m_framewidth, streamer->m_frameheight);
 			std::copy(streamer->m_rdbuf.get(), streamer->m_rdbuf.get() + streamer->m_bufcount, buf);
+			std::cout << buf[streamer->m_bufcount - 1] << '\n';
 			streamer->m_prod_out->push_back(buf);
 		}
 	}

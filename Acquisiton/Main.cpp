@@ -26,7 +26,7 @@ int main()
 		*/
 		LoadStreamer fgs;
 		fgs.SetFrameWidth(2048);
-		fgs.SetFrameHeight(1024);
+		fgs.SetFrameHeight(2048);
 		fgs.SetInputFile("C:/Users/SD-OCT/Desktop/OCT/Data/Tumor_NewCCD_2017-03-08_00000.oct.raw");
 		fgs.Setup();
 		BufferQueue<FrameGrabStreamer::Producer_element_t*> fg_to_cuda;
@@ -56,6 +56,10 @@ int main()
 		cs.SetLineWidth(fgs.GetFrameWidth());
 		cs.SetBufferCount(fgs.GetFrameHeight() * fgs.GetFrameWidth());
 		cs.Setup();
+		std::vector<CUDAStreamer::Consumer_element_t> dc_buf(fgs.GetFrameHeight() * fgs.GetFrameWidth());
+		std::ifstream dc_file("C:/Users/SD-OCT/Desktop/OCT/Data/dc.raw", std::ios::in | std::ios::binary);
+		dc_file.read((char*)dc_buf.data(), dc_buf.size() * sizeof(CUDAStreamer::Consumer_element_t));
+		cs.CopyDCBuffer(dc_buf.data());
 
 		SaveStreamer ss;
 		ss.SetFilename("D:/out_stream.bin");

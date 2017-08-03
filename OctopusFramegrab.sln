@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Acquisition", "Acquisiton\Acquisiton.vcxproj", "{ADD3045C-7A4A-46A6-9213-9C81C3EB1AFF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FloatBin2PNG", "FloatBin2PNG\FloatBin2PNG.vcxproj", "{EF0675ED-AF30-43F5-873A-480ADED6D1C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{ADD3045C-7A4A-46A6-9213-9C81C3EB1AFF}.Release|x64.Build.0 = Release|x64
 		{ADD3045C-7A4A-46A6-9213-9C81C3EB1AFF}.Release|x86.ActiveCfg = Release|Win32
 		{ADD3045C-7A4A-46A6-9213-9C81C3EB1AFF}.Release|x86.Build.0 = Release|Win32
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Debug|x64.ActiveCfg = Debug|x64
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Debug|x64.Build.0 = Debug|x64
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Debug|x86.ActiveCfg = Debug|Win32
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Debug|x86.Build.0 = Debug|Win32
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Release|x64.ActiveCfg = Release|x64
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Release|x64.Build.0 = Release|x64
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Release|x86.ActiveCfg = Release|Win32
+		{EF0675ED-AF30-43F5-873A-480ADED6D1C6}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

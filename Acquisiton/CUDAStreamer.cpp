@@ -9,6 +9,15 @@
 
 #include "cuda_runtime.h"
 
+double CalibrationFunction(double pixel_idx)
+{
+	const float c0 = 7.35122E+02;
+	const float c1 = 9.91797E-02;
+	const float c2 = -4.86383E-06;
+	const float c3 = -1.87312E-10;
+	return c0 + pixel_idx * (c1 + pixel_idx * (c2 + pixel_idx * c3));
+}
+
 void CUDAStreamer::StreamFunc(CUDAStreamer* streamer)
 {
 	while (streamer->m_streaming) {
@@ -23,7 +32,7 @@ void CUDAStreamer::StreamFunc(CUDAStreamer* streamer)
 			CUDAStreamer::Producer_element_t* out_buf = streamer->m_prod_in->front();
 			streamer->m_prod_in->pop_front();
 			cudaMemcpy(out_buf, streamer->m_device_norm_out_buf, streamer->m_out_bufsize, cudaMemcpyDeviceToHost);
-			std::cout << out_buf[0] << '\n';
+			//std::cout << out_buf[streamer->m_bufcount - 1] << '\n';
 			streamer->m_prod_out->push_back(out_buf);
 		}
 	}
@@ -60,15 +69,14 @@ void CUDAStreamer::Setup()
 	then index[6] = 3
 	and fraction[6] = 0.75
 	*/
+
 	std::vector<float> wavenumber;
 	for (int i = 1; i <= m_linewidth; ++i) {
-		wavenumber.emplace_back(2.0f * M_PI / i);
-		std::cout << wavenumber[i - 1] << '\n';
+		wavenumber.emplace_back(2.0f * M_PI / CalibrationFunction(i));
 	}
 	std::vector<float> linear_wavenumber;
 	for (int i = 0; i < m_linewidth; ++i) {
 		linear_wavenumber.emplace_back(wavenumber[wavenumber.size() - 1] + (wavenumber[0] - wavenumber[wavenumber.size() - 1]) / (m_linewidth - 1) * i);
-		std::cout << linear_wavenumber[linear_wavenumber.size() - 1] << '\n';
 	}
 	std::reverse(wavenumber.begin(), wavenumber.end());
 	std::vector<int> indexes;
@@ -108,10 +116,12 @@ void CUDAStreamer::Setup()
 	m_in_bufsize = m_bufcount * sizeof(CUDAStreamer::Consumer_element_t);
 	m_out_bufsize = m_bufcount * sizeof(CUDAStreamer::Producer_element_t);
 	if (cudaMalloc(&m_device_in_buf, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA input buffer.");
-	if (cudaMalloc(&m_device_conv_in_buf, m_bufcount * sizeof(cufftReal)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted input buffer.");
+	if (cudaMalloc(&m_device_conv_in_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted input buffer.");
 	if (cudaMalloc(&m_device_out_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA output buffer.");
 	if (cudaMalloc(&m_device_norm_out_buf, m_bufcount * sizeof(CUDAStreamer::Producer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted output buffer.");
-	if (cufftPlan1d(&m_plan, m_linewidth, CUFFT_R2C, m_bufcount / m_linewidth) != CUFFT_SUCCESS) throw std::runtime_error("Couldn't create cufft plan.");
+	if (cudaMalloc(&m_device_dc_buf, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA DC frame buffer.");
+	if (cudaMemset(m_device_dc_buf, 0, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't clear CUDA DC frame buffer.");
+	if (cufftPlan1d(&m_plan, m_linewidth, CUFFT_C2C, m_bufcount / m_linewidth) != CUFFT_SUCCESS) throw std::runtime_error("Couldn't create cufft plan.");
 	m_setup = true;
 }
 
@@ -128,4 +138,9 @@ void CUDAStreamer::StopStreaming()
 	if (m_streamthread.joinable()) {
 		m_streamthread.join();
 	}
+}
+
+void CUDAStreamer::CopyDCBuffer(Consumer_element_t * buf)
+{
+	cudaMemcpy(m_device_dc_buf, buf, m_in_bufsize, cudaMemcpyHostToDevice);
 }
