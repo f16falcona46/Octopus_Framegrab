@@ -109,8 +109,8 @@ void CUDAStreamer::Setup()
 	}
 	if (cudaMalloc(&m_device_lerp_index, m_bufcount * sizeof(int)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA lerp index buffer.");
 	if (cudaMalloc(&m_device_lerp_fraction, m_bufcount * sizeof(float)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA lerp fraction buffer.");
-	cudaMemcpy(m_device_lerp_index, indexes_todevice.get(), m_bufcount * sizeof(int), cudaMemcpyHostToDevice);
-	cudaMemcpy(m_device_lerp_fraction, fractions_todevice.get(), m_bufcount * sizeof(float), cudaMemcpyHostToDevice);
+	if (cudaMemcpy(m_device_lerp_index, indexes_todevice.get(), m_bufcount * sizeof(int), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation indexes.");
+	if (cudaMemcpy(m_device_lerp_fraction, fractions_todevice.get(), m_bufcount * sizeof(float), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation fractions.");
 
 	//allocate buffers
 	m_in_bufsize = m_bufcount * sizeof(CUDAStreamer::Consumer_element_t);

@@ -43,8 +43,7 @@ int main()
 			cuda_ssd_buffers.emplace_back(new CUDAStreamer::Producer_element_t[fgs.GetFrameHeight() * fgs.GetFrameWidth()]);
 			ssd_to_cuda.push_back(cuda_ssd_buffers[i].get());
 		}
-		std::cout << sizeof(CUDAStreamer::Producer_element_t) * fgs.GetFrameHeight() * fgs.GetFrameWidth() << '\n';
-
+		
 		fgs.SetProducerInputQueue(&cuda_to_fg);
 		fgs.SetProducerOutputQueue(&fg_to_cuda);
 
