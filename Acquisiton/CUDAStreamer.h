@@ -1,8 +1,8 @@
 #pragma once
 #include <cstdint>
 #include <thread>
+#include <cufft.h>
 #include "BufferQueue.h"
-#include "cufft.h"
 
 class CUDAStreamer
 {
@@ -35,21 +35,24 @@ private:
 	Producer_queue_t* m_prod_out;
 	std::thread m_streamthread;
 	bool m_streaming;
+	bool m_buffers_allocated;
 	bool m_setup;
 	cufftHandle m_plan;
 	uint16_t* m_device_in_buf;
 	cufftComplex* m_device_conv_in_buf;
 	cufftComplex* m_device_out_buf;
 	Producer_element_t* m_device_norm_out_buf;
+	Producer_element_t* m_device_contrast_out_buf;
 	int* m_device_lerp_index;
 	float* m_device_lerp_fraction;
-	Consumer_element_t* m_device_dc_buf;
+	float* m_device_dc_buf;
 	size_t m_bufcount;
 	size_t m_linewidth;
 	size_t m_in_bufsize;
 	size_t m_out_bufsize;
 
+	void DestroyBuffers();
 	static void CUDAStreamer::StreamFunc(CUDAStreamer* streamer);
+	static void CUDAStreamer::FillBuffer(CUDAStreamer::Consumer_element_t* buf, int size, CUDAStreamer::Consumer_element_t value);
 	static void DoFFT(CUDAStreamer* streamer);
 };
-

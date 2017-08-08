@@ -18,6 +18,20 @@ double CalibrationFunction(double pixel_idx)
 	return c0 + pixel_idx * (c1 + pixel_idx * (c2 + pixel_idx * c3));
 }
 
+void CUDAStreamer::DestroyBuffers()
+{
+	cufftDestroy(m_plan);
+	cudaFree(m_device_in_buf);
+	cudaFree(m_device_conv_in_buf);
+	cudaFree(m_device_out_buf);
+	cudaFree(m_device_norm_out_buf);
+	cudaFree(m_device_contrast_out_buf);
+	cudaFree(m_device_lerp_index);
+	cudaFree(m_device_lerp_fraction);
+	cudaFree(m_device_dc_buf);
+	m_buffers_allocated = false;
+}
+
 void CUDAStreamer::StreamFunc(CUDAStreamer* streamer)
 {
 	while (streamer->m_streaming) {
@@ -31,14 +45,14 @@ void CUDAStreamer::StreamFunc(CUDAStreamer* streamer)
 
 			CUDAStreamer::Producer_element_t* out_buf = streamer->m_prod_in->front();
 			streamer->m_prod_in->pop_front();
-			cudaMemcpy(out_buf, streamer->m_device_norm_out_buf, streamer->m_out_bufsize, cudaMemcpyDeviceToHost);
+			cudaMemcpy(out_buf, streamer->m_device_contrast_out_buf, streamer->m_out_bufsize, cudaMemcpyDeviceToHost);
 			//std::cout << out_buf[streamer->m_bufcount - 1] << '\n';
 			streamer->m_prod_out->push_back(out_buf);
 		}
 	}
 }
 
-CUDAStreamer::CUDAStreamer() : m_setup(false), m_streaming(false)
+CUDAStreamer::CUDAStreamer() : m_setup(false), m_streaming(false), m_buffers_allocated(false)
 {
 }
 
@@ -46,15 +60,12 @@ CUDAStreamer::CUDAStreamer() : m_setup(false), m_streaming(false)
 CUDAStreamer::~CUDAStreamer()
 {
 	StopStreaming();
-	cufftDestroy(m_plan);
-	cudaFree(m_device_in_buf);
-	cudaFree(m_device_conv_in_buf);
-	cudaFree(m_device_out_buf);
-	cudaFree(m_device_norm_out_buf);
+	if (m_buffers_allocated) DestroyBuffers();
 }
 
 void CUDAStreamer::Setup()
 {
+	if (m_buffers_allocated) DestroyBuffers();
 	/*
 	generate some lookup tables to help linear interpolation
 	indexes is the index of the lower of the two samples
@@ -98,19 +109,13 @@ void CUDAStreamer::Setup()
 	std::unique_ptr<float[]> fractions_todevice(new float[m_bufcount]);
 	int* in_i = indexes_todevice.get();
 	float* in_f = fractions_todevice.get();
-	while (in_i < indexes_todevice.get() + m_bufcount) {
-		std::copy(indexes.begin(), indexes.end(), in_i);
-		for (int& i : indexes) {
-			i += indexes.size();
-		}
-		std::copy(fractions.begin(), fractions.end(), in_f);
-		in_i += m_linewidth;
-		in_f += m_linewidth;
-	}
+	std::copy(indexes.begin(), indexes.end(), in_i);
+	std::copy(fractions.begin(), fractions.end(), in_f);
+	//copy the interpolation tables
 	if (cudaMalloc(&m_device_lerp_index, m_bufcount * sizeof(int)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA lerp index buffer.");
 	if (cudaMalloc(&m_device_lerp_fraction, m_bufcount * sizeof(float)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA lerp fraction buffer.");
-	if (cudaMemcpy(m_device_lerp_index, indexes_todevice.get(), m_bufcount * sizeof(int), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation indexes.");
-	if (cudaMemcpy(m_device_lerp_fraction, fractions_todevice.get(), m_bufcount * sizeof(float), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation fractions.");
+	if (cudaMemcpy(m_device_lerp_index, indexes_todevice.get(), m_linewidth * sizeof(int), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation indexes.");
+	if (cudaMemcpy(m_device_lerp_fraction, fractions_todevice.get(), m_linewidth * sizeof(float), cudaMemcpyHostToDevice) != cudaSuccess) throw std::runtime_error("Couldn't copy linear interpolation fractions.");
 
 	//allocate buffers
 	m_in_bufsize = m_bufcount * sizeof(CUDAStreamer::Consumer_element_t);
@@ -119,8 +124,9 @@ void CUDAStreamer::Setup()
 	if (cudaMalloc(&m_device_conv_in_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted input buffer.");
 	if (cudaMalloc(&m_device_out_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA output buffer.");
 	if (cudaMalloc(&m_device_norm_out_buf, m_bufcount * sizeof(CUDAStreamer::Producer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted output buffer.");
+	if (cudaMalloc(&m_device_contrast_out_buf, m_bufcount * sizeof(CUDAStreamer::Producer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA contrast-adjusted output buffer.");
 	if (cudaMalloc(&m_device_dc_buf, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA DC frame buffer.");
-	if (cudaMemset(m_device_dc_buf, 0, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't clear CUDA DC frame buffer.");
+	if (cudaMemset(m_device_dc_buf, 0, m_linewidth * sizeof(float)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA DC frame buffer.");
 	if (cufftPlan1d(&m_plan, m_linewidth, CUFFT_C2C, m_bufcount / m_linewidth) != CUFFT_SUCCESS) throw std::runtime_error("Couldn't create cufft plan.");
 	m_setup = true;
 }
@@ -142,5 +148,12 @@ void CUDAStreamer::StopStreaming()
 
 void CUDAStreamer::CopyDCBuffer(Consumer_element_t * buf)
 {
-	cudaMemcpy(m_device_dc_buf, buf, m_in_bufsize, cudaMemcpyHostToDevice);
+	std::vector<float> line(m_linewidth);
+	for (int i = 0; i < m_bufcount; ++i) {
+		line[i % m_linewidth] += buf[i];
+	}
+	for (int i = 0; i < m_linewidth; ++i) {
+		line[i] /= m_linewidth;
+	}
+	cudaMemcpy(m_device_dc_buf, line.data(), m_linewidth * sizeof(float), cudaMemcpyHostToDevice);
 }

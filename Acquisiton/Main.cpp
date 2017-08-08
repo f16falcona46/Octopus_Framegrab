@@ -1,8 +1,9 @@
 #include <Windows.h>
 #include <iostream>
 #include <memory>
-#include "cuda_runtime.h"
-#include "cufft.h"
+#include <vector>
+#include <cuda_runtime.h>
+#include <cufft.h>
 
 #include "BufferQueue.h"
 #include "LoadStreamer.h"
@@ -11,9 +12,15 @@
 #include "SaveStreamer.h"
 #include "ShortSaveStreamer.h"
 #include "DisplayStreamer.h"
-#include <vector>
-#include <future>
-#include <deque>
+
+template <typename T>
+void Transpose(T* src, T* dst, const int N, const int M) {
+	for (int n = 0; n<N*M; n++) {
+		int i = n / N;
+		int j = n%N;
+		dst[n] = src[M*j + i];
+	}
+}
 
 int main()
 {
@@ -56,9 +63,11 @@ int main()
 		cs.SetBufferCount(fgs.GetFrameHeight() * fgs.GetFrameWidth());
 		cs.Setup();
 		std::vector<CUDAStreamer::Consumer_element_t> dc_buf(fgs.GetFrameHeight() * fgs.GetFrameWidth());
+		std::vector<CUDAStreamer::Consumer_element_t> dc_buf_transposed(fgs.GetFrameHeight() * fgs.GetFrameWidth());
 		std::ifstream dc_file("C:/Users/SD-OCT/Desktop/OCT/Data/dc.raw", std::ios::in | std::ios::binary);
 		dc_file.read((char*)dc_buf.data(), dc_buf.size() * sizeof(CUDAStreamer::Consumer_element_t));
-		cs.CopyDCBuffer(dc_buf.data());
+		Transpose(dc_buf.data(), dc_buf_transposed.data(), fgs.GetFrameWidth(), fgs.GetFrameHeight());
+		cs.CopyDCBuffer(dc_buf_transposed.data());
 
 		SaveStreamer ss;
 		ss.SetFilename("D:/out_stream.bin");
