@@ -31,7 +31,7 @@ __global__ void Interpolate(const CUDAStreamer::Consumer_element_t* in, const fl
 	}
 }
 
-__global__ void NormAndCopy(const cufftComplex* in, CUDAStreamer::Producer_element_t* out, int size)
+__global__ void NormAndCopy(const cufftComplex* in, CUDAStreamer::Producer_element_t* out, int size, int linewidth)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (idx < size)	out[idx] = logf(sqrtf(in[idx].x * in[idx].x + in[idx].y * in[idx].y) + 10);
@@ -45,13 +45,14 @@ __global__ void AdjustContrast(const CUDAStreamer::Producer_element_t* in, CUDAS
 	}
 }
 
-__global__ void Fill(CUDAStreamer::Consumer_element_t* buf, int size, CUDAStreamer::Consumer_element_t value)
+__global__ void Fill(cufftComplex* buf, int size, cufftComplex value)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	int offset = 0;
 	if (idx < size) buf[idx] = value;
 }
 
-void CUDAStreamer::FillBuffer(CUDAStreamer::Consumer_element_t* buf, int size, CUDAStreamer::Consumer_element_t value)
+void CUDAStreamer::FillBuffer(cufftComplex* buf, int size, cufftComplex value)
 {
 	Fill <<<(size + 32 - 1) / 32, 32 >>> (buf, size, value);
 }
@@ -60,8 +61,8 @@ void CUDAStreamer::DoFFT(CUDAStreamer* streamer)
 {
 	Interpolate<<<(streamer->m_bufcount + 32 - 1) / 32, 32 >>>(streamer->m_device_in_buf, streamer->m_device_dc_buf, streamer->m_device_conv_in_buf, streamer->m_device_lerp_index, streamer->m_device_lerp_fraction, streamer->m_linewidth, streamer->m_bufcount);
 	if (cufftExecC2C(streamer->m_plan, streamer->m_device_conv_in_buf, streamer->m_device_out_buf, CUFFT_FORWARD) != CUFFT_SUCCESS) throw std::runtime_error("Failed to perform FFT.");
-	//NormAndCopy <<<(streamer->m_bufcount + 32 - 1) / 32, 32 >>> (streamer->m_device_conv_in_buf, streamer->m_device_norm_out_buf, streamer->m_bufcount);
-	NormAndCopy <<<(streamer->m_bufcount + 32 - 1) / 32, 32 >>> (streamer->m_device_out_buf, streamer->m_device_norm_out_buf, streamer->m_bufcount);
+	//NormAndCopy << <(streamer->m_bufcount + 32 - 1) / 32, 32 >> > (streamer->m_device_out_buf, streamer->m_device_norm_out_buf, streamer->m_bufcount, streamer->m_linewidth);
+	NormAndCopy << <(streamer->m_bufcount + 32 - 1) / 32, 32 >> > (streamer->m_device_out_buf, streamer->m_device_contrast_out_buf, streamer->m_bufcount, streamer->m_linewidth);
 	//thrust::device_ptr<CUDAStreamer::Producer_element_t> device_norm_out_buf = thrust::device_pointer_cast(streamer->m_device_norm_out_buf);
 	//CUDAStreamer::Producer_element_t min_pix = thrust::reduce(device_norm_out_buf, device_norm_out_buf + streamer->m_bufcount, 65536.0f, thrust::min<float>);
 	//CUDAStreamer::Producer_element_t max_pix = thrust::reduce(device_norm_out_buf, device_norm_out_buf + streamer->m_bufcount, -65536.0f, thrust::max<float>);

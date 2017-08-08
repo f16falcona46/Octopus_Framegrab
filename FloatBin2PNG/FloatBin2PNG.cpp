@@ -31,7 +31,7 @@ int main()
 			max_pix = std::max(max_pix, buf[j + height * width * i]);
 		}
 		for (int j = 0; j < height * width; ++j) {
-			//buf[j + height * width * i] = 1.0f - (buf[j + height * width * i] - min_pix) / (max_pix - min_pix);
+			buf[j + height * width * i] = 1.0f - (buf[j + height * width * i] - min_pix) / (max_pix - min_pix);
 		}
 	}
 	/*

@@ -53,6 +53,6 @@ private:
 
 	void DestroyBuffers();
 	static void CUDAStreamer::StreamFunc(CUDAStreamer* streamer);
-	static void CUDAStreamer::FillBuffer(CUDAStreamer::Consumer_element_t* buf, int size, CUDAStreamer::Consumer_element_t value);
+	static void CUDAStreamer::FillBuffer(cufftComplex* buf, int size, cufftComplex value);
 	static void DoFFT(CUDAStreamer* streamer);
 };

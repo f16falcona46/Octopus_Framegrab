@@ -121,12 +121,17 @@ void CUDAStreamer::Setup()
 	m_in_bufsize = m_bufcount * sizeof(CUDAStreamer::Consumer_element_t);
 	m_out_bufsize = m_bufcount * sizeof(CUDAStreamer::Producer_element_t);
 	if (cudaMalloc(&m_device_in_buf, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA input buffer.");
-	if (cudaMalloc(&m_device_conv_in_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted input buffer.");
-	if (cudaMalloc(&m_device_out_buf, m_bufcount * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA output buffer.");
+	if (cudaMalloc(&m_device_conv_in_buf, m_bufcount * 2 * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted input buffer.");
+	cufftComplex zero;
+	zero.x = 0;
+	zero.y = 0;
+	FillBuffer(m_device_conv_in_buf, m_bufcount * 2, zero);
+	if (cudaMalloc(&m_device_out_buf, m_bufcount * 2 * sizeof(cufftComplex)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA output buffer.");
 	if (cudaMalloc(&m_device_norm_out_buf, m_bufcount * sizeof(CUDAStreamer::Producer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA converted output buffer.");
 	if (cudaMalloc(&m_device_contrast_out_buf, m_bufcount * sizeof(CUDAStreamer::Producer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA contrast-adjusted output buffer.");
 	if (cudaMalloc(&m_device_dc_buf, m_bufcount * sizeof(CUDAStreamer::Consumer_element_t)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA DC frame buffer.");
 	if (cudaMemset(m_device_dc_buf, 0, m_linewidth * sizeof(float)) != cudaSuccess) throw std::runtime_error("Couldn't allocate CUDA DC frame buffer.");
+
 	if (cufftPlan1d(&m_plan, m_linewidth, CUFFT_C2C, m_bufcount / m_linewidth) != CUFFT_SUCCESS) throw std::runtime_error("Couldn't create cufft plan.");
 	m_setup = true;
 }
