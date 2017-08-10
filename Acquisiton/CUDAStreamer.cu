@@ -25,8 +25,8 @@ __global__ void Interpolate(const CUDAStreamer::Consumer_element_t* in, const fl
 	int interp_idx = idx % linewidth;
 	int offset = idx - interp_idx;
 	if (idx < size) {
-		out[idx].x = in[indexes[interp_idx] + offset] * (1.0f - fractions[interp_idx]) + in[indexes[interp_idx] + offset + 1] * fractions[interp_idx];
-		out[idx].x -= dc[indexes[interp_idx]] * (1.0f - fractions[interp_idx]) + dc[indexes[interp_idx] + 1] * fractions[interp_idx];
+		out[idx].x = in[indexes[interp_idx] + offset] * (1.0f - fractions[interp_idx]) + in[indexes[interp_idx] + offset - 1] * fractions[interp_idx];
+		out[idx].x -= dc[indexes[interp_idx]] * (1.0f - fractions[interp_idx]) + dc[indexes[interp_idx] - 1] * fractions[interp_idx];
 		out[idx].y = 0;
 	}
 }
@@ -62,7 +62,7 @@ void CUDAStreamer::DoFFT(CUDAStreamer* streamer)
 	Interpolate<<<(streamer->m_bufcount + 32 - 1) / 32, 32 >>>(streamer->m_device_in_buf, streamer->m_device_dc_buf, streamer->m_device_conv_in_buf, streamer->m_device_lerp_index, streamer->m_device_lerp_fraction, streamer->m_linewidth, streamer->m_bufcount);
 	if (cufftExecC2C(streamer->m_plan, streamer->m_device_conv_in_buf, streamer->m_device_out_buf, CUFFT_FORWARD) != CUFFT_SUCCESS) throw std::runtime_error("Failed to perform FFT.");
 	//NormAndCopy << <(streamer->m_bufcount + 32 - 1) / 32, 32 >> > (streamer->m_device_out_buf, streamer->m_device_norm_out_buf, streamer->m_bufcount, streamer->m_linewidth);
-	NormAndCopy << <(streamer->m_bufcount + 32 - 1) / 32, 32 >> > (streamer->m_device_out_buf, streamer->m_device_contrast_out_buf, streamer->m_bufcount, streamer->m_linewidth);
+	NormAndCopy <<<(streamer->m_bufcount + 32 - 1) / 32, 32 >>> (streamer->m_device_out_buf, streamer->m_device_contrast_out_buf, streamer->m_bufcount, streamer->m_linewidth);
 	//thrust::device_ptr<CUDAStreamer::Producer_element_t> device_norm_out_buf = thrust::device_pointer_cast(streamer->m_device_norm_out_buf);
 	//CUDAStreamer::Producer_element_t min_pix = thrust::reduce(device_norm_out_buf, device_norm_out_buf + streamer->m_bufcount, 65536.0f, thrust::min<float>);
 	//CUDAStreamer::Producer_element_t max_pix = thrust::reduce(device_norm_out_buf, device_norm_out_buf + streamer->m_bufcount, -65536.0f, thrust::max<float>);

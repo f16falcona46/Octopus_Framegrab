@@ -51,9 +51,7 @@ void LoadStreamer::StreamFunc(LoadStreamer* streamer)
 		if (streamer->m_prod_in->size() > 0) {
 			Producer_element_t* buf = streamer->m_prod_in->front();
 			streamer->m_prod_in->pop_front();
-			//Transpose(streamer->m_rdbuf.get(), buf, streamer->m_framewidth, streamer->m_frameheight);
 			std::copy(streamer->m_rdbuf.get(), streamer->m_rdbuf.get() + streamer->m_bufcount, buf);
-			std::cout << buf[streamer->m_bufcount - 1] << '\n';
 			streamer->m_prod_out->push_back(buf);
 		}
 	}

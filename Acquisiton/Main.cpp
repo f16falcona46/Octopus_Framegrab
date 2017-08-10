@@ -81,12 +81,6 @@ int main()
 		ss.StartStreaming();
 		MessageBox(NULL, "look", "", MB_OK);
 		
-		/*
-		while (1) {
-			std::cout << fg_to_cuda.size() << '\t' << cuda_to_fg.size() << '\t' << cuda_to_ssd.size() << '\t' << ssd_to_cuda.size() << '\n';
-		}
-		*/
-		
 		fgs.StopStreaming();
 		cs.StopStreaming();
 		ss.StopStreaming();

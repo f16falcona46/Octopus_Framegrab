@@ -34,27 +34,10 @@ int main()
 			buf[j + height * width * i] = 1.0f - (buf[j + height * width * i] - min_pix) / (max_pix - min_pix);
 		}
 	}
-	/*
-	for (int y = 0; y < height * num_frames; ++y) {
-		double avg = 0;
-		for (int x = 0; x < width; ++x) {
-			avg += buf[width * y + x];
-		}
-		avg = avg / width;
-		for (int x = 0; x < width; ++x) {
-			//img.set_pixel(x, y, buf[(2050 * y + x < buf.size()) ? (2050 * y + x) : (buf.size() - 1)] / avg * 255);
-			img.set_pixel(x, y, buf[width * y + x / 2] / avg * 255);
-		}
-	}
-	*/
 	for (int i = 0; i < num_frames; ++i) {
 		png::image<png::gray_pixel> img(width, height);
 		for (int y = 0; y < height; ++y) {
 			for (int x = 0; x < width; ++x) {
-				if (buf[x / 2 + width * (y + height * i)] * 255 > 255 || buf[x / 2 + width * (y + height * i)] * 255 < 0) {
-					//std::cout << (x / 2 + width * (y + height * i)) << ' ' << buf[x / 2 + width * (y + height * i)] << '\n';
-					//MessageBox(NULL, L"", L"", MB_OK);
-				}
 				img.set_pixel(x, y, buf[x / 2 + width * (y + height * i)] * 255);
 			}
 		}
