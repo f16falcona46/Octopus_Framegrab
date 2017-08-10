@@ -1,0 +1,5 @@
+1. Document everything
+2. Remove magic constants (and move the calibration function outside)
+3. Figure out serial port stuff to replace CommCam
+4. Output in TIFF
+5. Create live preview window

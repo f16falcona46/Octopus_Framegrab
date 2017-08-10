@@ -1,13 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
     <CudaCompile Include="CUDAStreamer.cu">
       <Filter>Class Source Files</Filter>
     </CudaCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Acquisition.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="CUDAStreamer.cpp">
       <Filter>Class Source Files</Filter>
@@ -53,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="StreamerInfo.txt" />
+    <Text Include="TODO.txt" />
+    <Text Include="General Information.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Class Header Files">

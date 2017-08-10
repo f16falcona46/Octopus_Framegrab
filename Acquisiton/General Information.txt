@@ -1,0 +1,22 @@
+
+Streamers have direction (each terminal of a streamer is either a producer or a consumer). A streamer can be a producer and a consumer at
+the same time, but the ends are not interchangeable. Usually, that streamer applies sone kind of transformation to the data, and then
+sends it to the next streamer in the chaibn. The buffers that streamers transfer are typed (a Producer using float buffers cannot operate
+with a Consumer using uint16_t buffers). 
+
+Producers produce buffers filled with data, which is passed to consumers. Consumers return used buffers to the producer via another queue.
+To set up the queues, the return queue (consumer back to producer) is filled with buffers, while the forward queue (producer to consumer)
+is empty.
+
+General flow of buffers through the program:
+
+							Buffers with data													Buffers with data
+                    Output  ----BufferQueue------> Input			                   Output  ----BufferQueue------> Input
+FrameGrabStreamer (Producer)                CUDAStreamer (Consumer) => GPU => CUDAStreamer (Producer)                     SaveStreamer (Consumer)
+					Input   <---BufferQueue------- Output		            		   Input   <---BufferQueue------- Output
+							 Empty buffers                                                      Empty buffers
+
+Each streamer has its own thread, and therefore runs independently of the other streamers. Accordingly, the buffers have to be protected
+somehow. This is done by protecting the BufferQueues with mutexes, and ensuring that a buffer is in at most one BufferQueue at a time.
+Since BufferQueues are unidirectional, this ensures that it is not possible for both streamers to hold the same buffer.
+

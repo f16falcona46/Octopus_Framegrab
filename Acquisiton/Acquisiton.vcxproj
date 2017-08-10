@@ -175,10 +175,8 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">compute_50,sm_50</CodeGeneration>
       <CodeGeneration Condition="'$(Configuration)|$(Platform)'=='Release|x64'">compute_50,sm_50</CodeGeneration>
     </CudaCompile>
-    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Acquisition.cpp" />
     <ClCompile Include="CUDAStreamer.cpp" />
     <ClCompile Include="DisplayStreamer.cpp" />
     <ClCompile Include="FrameGrabStreamer.cpp" />
@@ -197,7 +195,9 @@ copy "$(CudaToolkitBinDir)\cudart*.dll" "$(OutDir)"</Command>
     <ClInclude Include="ShortSaveStreamer.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="General Information.txt" />
     <Text Include="StreamerInfo.txt" />
+    <Text Include="TODO.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

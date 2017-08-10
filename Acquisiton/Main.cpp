@@ -79,12 +79,12 @@ int main()
 		fgs.StartStreaming();
 		cs.StartStreaming();
 		ss.StartStreaming();
-		MessageBox(NULL, "look", "", MB_OK);
+		MessageBox(NULL, "Streaming...", "", MB_OK);
 		
 		fgs.StopStreaming();
 		cs.StopStreaming();
 		ss.StopStreaming();
-		MessageBox(NULL, "Wait...", "", MB_OK);
+		MessageBox(NULL, "Streaming stopped...", "", MB_OK);
 	}
 	catch (const std::exception& e) {
 		std::cout << "Exception: " << e.what() << "\n";
@@ -93,5 +93,5 @@ int main()
 	catch (...) {
 		std::cout << "Something bad happened.\n";
 	}
-	MessageBox(NULL, "Wait more...", "", MB_OK);
+	MessageBox(NULL, "Streamers deallocated...", "", MB_OK);
 }

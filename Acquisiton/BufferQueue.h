@@ -20,6 +20,11 @@ public:
 		std::lock_guard<std::mutex> lock(m_beingmodified);
 		return m_queue.front();
 	}
+	const T& front() const
+	{
+		std::lock_guard<std::mutex> lock(m_beingmodified);
+		return m_queue.front();
+	}
 	void push_back(T& item)
 	{
 		std::lock_guard<std::mutex> lock(m_beingmodified);
@@ -41,7 +46,7 @@ public:
 		return m_queue.size();
 	}
 private:
-	std::mutex m_beingmodified;
-	std::deque<T> m_queue;
+	std::mutex m_beingmodified;	//protects the queue when it's being read or modified
+	std::deque<T> m_queue;	//queue that holds buffers (but can technically hold anything else)
 };
 

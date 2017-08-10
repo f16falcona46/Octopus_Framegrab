@@ -21,13 +21,8 @@ SaveStreamer::SaveStreamer()
 
 SaveStreamer::~SaveStreamer()
 {
-	try {
-		StopStreaming();
-		m_outfile.close();
-	}
-	catch (...) {
-		std::cout << "Something bad happened in ~SaveStreamer().\n";
-	}
+	StopStreaming();
+	m_outfile.close();
 }
 
 std::string SaveStreamer::GetFilename()

@@ -24,16 +24,11 @@ FrameGrabStreamer::FrameGrabStreamer() : m_set_up(false)
 
 FrameGrabStreamer::~FrameGrabStreamer()
 {
-	try {
-		StopStreaming();
-		m_acq.UnregisterCallback();
-		m_acq_to_buf.Destroy();
-		m_buffer.Destroy();
-		m_acq.Destroy();
-	}
-	catch (...) {
-		std::cout << "Something bad happened in ~FrameGrabStreamer().\n";
-	}
+	StopStreaming();
+	m_acq.UnregisterCallback();
+	m_acq_to_buf.Destroy();
+	m_buffer.Destroy();
+	m_acq.Destroy();
 }
 
 int FrameGrabStreamer::GetFrameWidth()
